@@ -1,4 +1,5 @@
 import streamlit as st
+import google.generativeai as genai
 import sqlite3
 import hashlib
 import json
@@ -184,7 +185,7 @@ def get_LLM_response(prompt, keywords="", api_key="SUPER_SECRET_API_KEY"):
 
     context = f"""
         We have the following Xfinity products under 4 categories: {json.dumps(xfinity_products)}. 
-        Users can be recommended a single service or a combination of them based on their input prompt. 
+        Users can be recommended a single service or a combination of them based on their input prompt.Recognize use case that require dynamic internet speeds and differentiate between mobile,Tv,Home security and Internet use cases.
         Based on the user prompt and some keywords, return a JSON list of exactly one service or combination of services 
         that best fit their needs. Each item must have 'name', 'price', and 'features' keys, matching the product names EXACTLY 
         as given in the dictionary. User prompt: {prompt} Keywords: {keywords}
