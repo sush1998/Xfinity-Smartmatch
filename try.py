@@ -1,17 +1,17 @@
 import streamlit as st
 import sqlite3
 import hashlib
-import uuid
+import json
 
 # Set page config as the first Streamlit command
 st.set_page_config(page_title="Xfinity SmartMatch", layout="wide")
 
-# Custom CSS (unchanged)
+# Custom CSS (updated for better chat container styling)
 st.markdown("""
     <style>
     body {
         font-family: 'Inter', 'Segoe UI', sans-serif;
-        background-color: #f0f2f6;
+        background-color: #280e8b;
     }
     .main {
         background-color: #ffffff;
@@ -22,13 +22,14 @@ st.markdown("""
         margin: 0 auto;
     }
     h2 {
-        position:relative;
         color: #1e293b;
         font-weight: 600;
+        text-align: center;
     }
     h4 {
         color: #64748b;
         font-weight: 400;
+        text-align: center;
     }
     .stTextInput > div > div > input {
         border-radius: 10px;
@@ -73,7 +74,6 @@ st.markdown("""
     .toggle-card.active {
         background-color: #3b82f6;
         color: white;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
     .toggle-card:hover {
         transform: translateY(-3px);
@@ -81,14 +81,10 @@ st.markdown("""
     .plan-card {
         background-color: #ffffff;
         border-radius: 12px;
-        padding: 20px;
+        padding: 15px;
         margin: 10px 0;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         border-left: 5px solid #3b82f6;
-        transition: transform 0.2s ease;
-    }
-    .plan-card:hover {
-        transform: translateY(-5px);
     }
     .plan-card h3 {
         color: #1e293b;
@@ -106,32 +102,25 @@ st.markdown("""
     }
     .chat-container {
         background-color: #f3f4f6;
-        padding: 10px;
+        padding: 15px;
         border-radius: 10px;
+        margin: 20px 0;
+    }
+    .user-message {
+        background-color: #e2e8f0;
+        color: #1e293b;
+        padding: 10px;
+        border-radius: 8px;
         margin-bottom: 10px;
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        grid-column-gap: 0px;
-        grid-row-gap: 10px;
-        }
-        .user-message {
-            background-color: #e2e8f0;
-            color: white;
-            padding: 10px;
-            border-radius: 10px;
-            grid-area: 1 / 3 / 2 / 6;
-            justify-items: end;
-        }
-        .bot-message {
-            background-color: #6b7280;
-            color: black;
-            padding: 10px;
-            border-radius: 10px;
-            grid-area: 2 / 1 / 3 / 4;
-        }
-        .chat-space{
-            height:2em;
-        }
+        word-wrap: break-word;
+    }
+    .bot-message {
+        background-color: #6b7280;
+        color: white;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -181,125 +170,64 @@ def login_user(username, password):
         return user
     return None
 
-# Improved AI Recommendation Logic
-def get_ai_recommendation(prompt, active_toggle):
-    if not prompt or not active_toggle:
-        return [{"name": "No Plan Available", "price": "N/A", "features": ["Please provide details and select a category"]}]
-
-    prompt = prompt.lower()  # Ensure consistent case for keyword matching
-
-    if active_toggle == "Internet":
-        if "work from home" in prompt or "video calls" in prompt or "fast" in prompt:
-            return [
-                {"name": "Ultimate Connect", "price": "$79.99/mo", "features": ["1 Gbps Internet", "Unlimited Data"]},
-                {"name": "Fast Connect", "price": "$59.99/mo", "features": ["500 Mbps Internet", "Unlimited Data"]}
-            ]
-        elif "gaming" in prompt:
-            return [
-                {"name": "Gamer Speed", "price": "$69.99/mo", "features": ["800 Mbps Internet", "Low Latency"]},
-                {"name": "Ultimate Connect", "price": "$79.99/mo", "features": ["1 Gbps Internet", "Unlimited Data"]}
-            ]
-        else:
-            return [
-                {"name": "Basic Speed", "price": "$29.99/mo", "features": ["100 Mbps Internet", "1 TB Data"]}
-            ]
-
-    elif active_toggle == "TV":
-        if "streaming" in prompt or "netflix" in prompt:
-            return [
-                {"name": "Streaming Plus", "price": "$99.99/mo", "features": ["500 Mbps Internet", "200+ Channels"]},
-                {"name": "Stream Lite", "price": "$69.99/mo", "features": ["300 Mbps Internet", "150+ Channels"]}
-            ]
-        else:
-            return [
-                {"name": "Basic TV", "price": "$49.99/mo", "features": ["125+ Channels", "DVR Included"]}
-            ]
-
-    elif active_toggle == "Mobile":
-        if "unlimited" in prompt or "5g" in prompt:
-            return [
-                {"name": "Mobile Freedom", "price": "$45.00/mo", "features": ["Unlimited Talk & Text", "5G Network"]}
-            ]
-        else:
-            return [
-                {"name": "Mobile Lite", "price": "$25.00/mo", "features": ["10GB Data", "4G Network"]}
-            ]
-
-    elif active_toggle == "Home Security":
-        if "cameras" in prompt or "smart home" in prompt:
-            return [
-                {"name": "Total Protection", "price": "$59.99/mo", "features": ["Cameras", "Motion Sensors"]}
-            ]
-        else:
-            return [
-                {"name": "Secure Home", "price": "$39.99/mo", "features": ["24/7 Monitoring", "Smart Locks"]}
-            ]
-
-    return [{"name": "Generic Plan", "price": "$49.99/mo", "features": ["Basic Features"]}]
-
-def get_LLM_response(prompt, keywords, api_key = "SUPER_SECRET_API_KEY"):
-
-    import base64
-    import os
+# Updated get_LLM_response function
+def get_LLM_response(prompt, keywords="", api_key="SUPER_SECRET_API_KEY"):
+    import json
+    import streamlit as st
     from google import genai
     from google.genai import types
-    import json
-    import streamlit as st 
 
-    
-    api_key = st.secrets[api_key] 
+    SUPER_SECRET_API_KEY = "AIzaSyAerG1bzf9EdiA_HfxnW1rA_PoeATo9G5c"
 
     with open('Xfinity_data.json', 'r') as file:
         xfinity_products = json.load(file)
 
     context = f"""
-                    We have the following x-finity products under 4 categories as the following: {xfinity_products}. Users can be recommended a single 
-                    service or a combination of them based on their input prompt. Based on the user prompt and some keywords, return a list of a total 
-                    of three services or three combinations of services (in the same input format) you would deem to be the best fit for their needs. 
-                    User prompt: {prompt} Keywords: {keywords}
-        """
-
+        We have the following Xfinity products under 4 categories: {json.dumps(xfinity_products)}. 
+        Users can be recommended a single service or a combination of them based on their input prompt. 
+        Based on the user prompt and some keywords, return a JSON list of exactly one service or combination of services 
+        that best fit their needs. Each item must have 'name', 'price', and 'features' keys, matching the product names EXACTLY 
+        as given in the dictionary. User prompt: {prompt} Keywords: {keywords}
+        Example output: [
+            {{"name": "Xfinity Internet Essential", "price": "$29.99/month", "features": ["50 Mbps", "Unlimited Data"]}},
+        ]
+    """
 
     def generate():
-        client = genai.Client(
-            api_key=os.environ.get("GEMINI_API_KEY"),
-        )
-
+        client = genai.Client(api_key=SUPER_SECRET_API_KEY)
         model = "gemini-2.0-flash"
-        contents = [
-            types.Content(
-                role="user",
-                parts=[
-                    types.Part.from_text(
-                        text = context
-                    ),
-                ],
-            ),
-        ]
-        generate_content_config = types.GenerateContentConfig(
+        contents = [types.Content(role="user", parts=[types.Part.from_text(text=context)])]
+        config = types.GenerateContentConfig(
             temperature=1,
             top_p=0.95,
             top_k=40,
             max_output_tokens=8192,
             response_mime_type="application/json",
         )
-
-        for chunk in client.models.generate_content_stream(
-            model=model,
-            contents=contents,
-            config=generate_content_config,
-        ):
-            print(chunk.text, end="")
-
+        full_response = ""
+        for chunk in client.models.generate_content_stream(model=model, contents=contents, config=config):
+            if chunk.text:
+                full_response += chunk.text
+        return full_response
 
     llm_response = generate()
-    return llm_response
-
+    try:
+        parsed_response = json.loads(llm_response)
+        if isinstance(parsed_response, list) and all(isinstance(item, dict) and 'name' in item and 'price' in item and 'features' in item for item in parsed_response):
+            return parsed_response[:3]  # Ensure only 3 items are returned
+        else:
+            st.error(f"LLM response format invalid: {parsed_response}")
+            return [{"name": "Error", "price": "N/A", "features": ["Invalid response format"]}]
+    except json.JSONDecodeError as e:
+        st.error(f"Failed to parse LLM response: {e}")
+        return [{"name": "Error", "price": "N/A", "features": ["Failed to parse response"]}]
 
 # Streamlit App
 def app():
     if 'logged_in' not in st.session_state:
         st.session_state.logged_in = False
+    if 'logged_in' in st.session_state:
+        st.session_state.chat_mode=True
     if 'user_data' not in st.session_state:
         st.session_state.user_data = {}
     if 'show_signup' not in st.session_state:
@@ -325,9 +253,9 @@ def app():
                 st.session_state.active_toggle = None
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
-            st.markdown(f"<h2 style='text-align: center;'>Welcome, {st.session_state.user_data['name']} 👋</h2>", unsafe_allow_html=True)
-            st.markdown("<h4 style='text-align: center;'>Find Your Perfect Xfinity Plan</h4>", unsafe_allow_html=True)            
-            
+            st.markdown(f"<h2>Welcome, {st.session_state.user_data['name']} 👋</h2>", unsafe_allow_html=True)
+            st.markdown("<h4>Find Your Perfect Xfinity Plan</h4>", unsafe_allow_html=True)            
+           
             # Toggle cards
             st.subheader("What are you interested in?")
             st.markdown('<div class="toggle-container">', unsafe_allow_html=True)
@@ -338,21 +266,12 @@ def app():
                     if st.button(option, key=option):
                         st.session_state.active_toggle = option
                         st.session_state.chat_mode = True
-                        recommendations = get_ai_recommendation("", st.session_state.active_toggle)
+                        recommendations = get_LLM_response(f"Show me {option} plans", st.session_state.active_toggle)
                         st.session_state.chat_history = [{"user": f"Show me {option} plans", "bot": recommendations}]
                         st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
-            if 'chat_mode' in st.session_state:
-                st.session_state.chat_mode = True
-            if 'chat_history' not in st.session_state:
-                st.session_state.chat_history = []
-            if 'waiting_for_continue' not in st.session_state:
-                st.session_state.waiting_for_continue = False
-
-
-            # Display chat history
-            
+            # Display chat history in a single chat container
             for entry in st.session_state.chat_history:
                 for plan in entry['bot']:
                     st.markdown(
@@ -375,20 +294,13 @@ def app():
                         )
 
             if st.session_state.chat_mode:
-                # Initial prompt input (centered)
-                col1, col2, col3 = st.columns([1, 1, 2])
-                with col3:
-                    st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
-                    user_prompt = st.text_input("", placeholder="Describe your needs...", key="initial_user_input", help="Example: 'I work from home and need fast internet.'")
-                    print(user_prompt)
-                    print(type(user_prompt))
-                    st.markdown("</div>", unsafe_allow_html=True)
-
+            # Prompt input (centered)
                 col1, col2, col3 = st.columns([1, 2, 1])
                 with col2:
+                    user_prompt = st.text_input("", placeholder="Describe your needs...", key="user_input", help="Example: 'I work from home and need fast internet.'")
                     if st.button("Get Recommendations", use_container_width=True):
                         if user_prompt:
-                            recommendations = get_ai_recommendation(user_prompt, st.session_state.active_toggle)
+                            recommendations = get_LLM_response(user_prompt, st.session_state.active_toggle)
                             st.session_state.chat_history.append({"user": user_prompt, "bot": recommendations})
                             st.rerun()
                         else:
