@@ -1,0 +1,244 @@
+{
+    "internet": [
+        {
+            "name": "Connect",
+            "price": "$29.95",
+            "download_speed": "100 Mbps",
+            "features": [
+                "No Credit Check",
+                "Equipment Included",
+                "No Contract",
+                "Unlimited data included",
+                "Your address qualifies for this Internet Essentials service",
+                "Buy Xfinity Mobile Unlimited line + get a second line FREE"
+            ],
+            "price_guarantee_duration": "0 months",
+            "guaranteed_price": "$29.95"
+        },
+        {
+            "name": "Connect More",
+            "price": "$35.00",
+            "download_speed": "300 Mbps",
+            "features": [
+                "Download medium files",
+                "Stream in HD quality",
+                "Download music and podcasts",
+                "Unlimited data included",
+                "Get a line of Xfinity Mobile Unlimited included for 1 year",
+                "$100 Amazon.com Gift Card"
+            ],
+            "price_guarantee_duration": "24 months",
+            "guaranteed_price": "$35.00"
+        },
+        {
+            "name": "Fast",
+            "price": "$50.00",
+            "download_speed": "500 Mbps",
+            "features": [
+                "Download medium files quickly",
+                "Low lag when streaming",
+                "Work and learn from home",
+                "Unlimited data included",
+                "Get a line of Xfinity Mobile Unlimited included for 1 year",
+                "$100 Amazon.com Gift Card"
+            ],
+            "price_guarantee_duration": "24 months",
+            "guaranteed_price": "$50.00"
+        },
+        {
+            "name": "Superfast",
+            "price": "$65.00",
+            "download_speed": "800 Mbps",
+            "features": [
+                "1.2 TB data cap",
+                "Xfinity WiFi hotspots access",
+                "Advanced Security included",
+                "Free Flex 4K streaming box"
+            ],
+            "price_guarantee_duration": "12 months",
+            "guaranteed_price": "$65.00"
+        },
+        {
+            "name": "Gigabit",
+            "price": "$70.00",
+            "download_speed": "1000 Mbps",
+            "features": [
+                "Download large files in seconds",
+                "Ultra low lag",
+                "Stream all your favorite music and podcasts",
+                "Unlimited data included",
+                "Peacock Premium included for 24 months",
+                "Get a line of Xfinity Mobile Unlimited included for 1 year",
+                "$200 Amazon.com Gift Card"
+            ],
+            "price_guarantee_duration": "24 months",
+            "guaranteed_price": "$70.00"
+        },
+        {
+            "name": "Gigabit Extra",
+            "price": "$85.00",
+            "download_speed": "1200 Mbps",
+            "features": [
+                "1.2 TB data cap",
+                "Xfinity WiFi hotspots access",
+                "Advanced Security included",
+                "Free Flex 4K streaming box",
+                "Free Peacock Premium for 2 years"
+            ],
+            "price_guarantee_duration": "24 months",
+            "guaranteed_price": "$85.00"
+        },
+        {
+            "name": "Gigabit x2",
+            "price": "$105.00",
+            "download_speed": "2000 Mbps",
+            "features": [
+                "Maximum speed in your home",
+                "Ultra low lag",
+                "Connect and stream on 4K on every device",
+                "Unlimited data included",
+                "Peacock Premium included for 24 months",
+                "Get a line of Xfinity Mobile Unlimited included for 1 year",
+                "$200 Amazon.com Gift Card"
+            ],
+            "price_guarantee_duration": "36 months",
+            "guaranteed_price": "$105.00"
+        },
+        {
+            "name": "Gigabit Pro",
+            "price": "$299.95",
+            "download_speed": "6000 Mbps",
+            "features": [
+                "Unlimited data included",
+                "Fiber-to-the-home connection",
+                "Xfinity WiFi hotspots access",
+                "Advanced Security included"
+            ],
+            "price_guarantee_duration": "24 months",
+            "guaranteed_price": "$299.95"
+        }
+    ],
+    "mobile": [
+        {
+            "name": "Unlimited",
+            "price": "$45.00",
+            "data": "Unlimited",
+            "features": [
+                "Unlimited talk & text",
+                "Unlimited data",
+                "5G access included",
+                "Reduced speeds after 20GB of usage"
+            ]
+        },
+        {
+            "name": "Unlimited Plus",
+            "price": "$55.00",
+            "data": "Unlimited",
+            "features": [
+                "Unlimited talk & text",
+                "Unlimited data",
+                "5G access included",
+                "HD-quality streaming",
+                "Reduced speeds after 30GB of usage"
+            ]
+        },
+        {
+            "name": "By the Gig",
+            "price": "$15.00",
+            "data": "1GB",
+            "features": [
+                "Unlimited talk & text",
+                "$15 per GB of shared data",
+                "5G access included",
+                "Pay only for data you use"
+            ]
+        }
+    ],
+    "tv": [
+        {
+            "name": "Popular TV",
+            "price": "$50.00",
+            "channels": "125+",
+            "features": [
+                "Local channels included",
+                "X1 TV Box included",
+                "Access to Peacock Premium"
+            ]
+        },
+        {
+            "name": "Ultimate TV",
+            "price": "$80.00",
+            "channels": "185+",
+            "features": [
+                "All Popular TV channels",
+                "Sports channels included",
+                "Entertainment channels",
+                "X1 TV Box included",
+                "Access to Peacock Premium"
+            ]
+        },
+        {
+            "name": "Choice TV",
+            "price": "$30.00",
+            "channels": "10+",
+            "features": [
+                "Local channels only",
+                "X1 TV Box included",
+                "Basic streaming options"
+            ]
+        }
+    ],
+    "home_security": [
+        {
+            "name": "Base Home Security",
+            "price": "$30.00",
+            "equipment": [
+                "1 touchscreen controller",
+                "3 door/window sensors",
+                "1 motion sensor"
+            ],
+            "features": [
+                "24/7 professional monitoring",
+                "Cellular backup",
+                "Remote arm/disarm",
+                "Mobile app access"
+            ]
+        },
+        {
+            "name": "Complete Home Security",
+            "price": "$40.00",
+            "equipment": [
+                "1 touchscreen controller",
+                "5 door/window sensors",
+                "1 motion sensor",
+                "1 HD security camera"
+            ],
+            "features": [
+                "24/7 professional monitoring",
+                "Cellular backup",
+                "Remote arm/disarm",
+                "Mobile app access",
+                "Video monitoring"
+            ]
+        },
+        {
+            "name": "Ultimate Home Security",
+            "price": "$50.00",
+            "equipment": [
+                "1 touchscreen controller",
+                "5 door/window sensors",
+                "2 motion sensors",
+                "2 HD security cameras",
+                "1 video doorbell"
+            ],
+            "features": [
+                "24/7 professional monitoring",
+                "Cellular backup",
+                "Remote arm/disarm",
+                "Mobile app access",
+                "Video monitoring",
+                "Smart home automation"
+            ]
+        }
+    ]
+}
