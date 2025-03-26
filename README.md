@@ -94,7 +94,7 @@ Our recommendation system uses a hybrid approach:
 
 ## 📊 Demo
 
-[View Demo](https://sush1998.github.io/Xfinity-SmartMatch-Demo)
+[View Demo](https://xfinity-smartmatch.streamlit.app/)
 
 ## 🤝 Contributing
 
