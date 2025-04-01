@@ -4,10 +4,11 @@ import sqlite3
 import hashlib
 import json
 
-# Set page config as the first Streamlit command
+
+
 st.set_page_config(page_title="Xfinity SmartMatch", layout="wide")
 
-# Custom CSS (updated for better chat container styling)
+
 st.markdown("""
     <style>
     body {
@@ -125,7 +126,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Database functions (unchanged)
+
 def init_db():
     conn = sqlite3.connect('user_data.db')
     cursor = conn.cursor()
@@ -171,59 +172,75 @@ def login_user(username, password):
         return user
     return None
 
-# Updated get_LLM_response function
-def get_LLM_response(prompt, keywords="", api_key="SUPER_SECRET_API_KEY"):
-    import json
-    import streamlit as st
-    from google import genai
-    from google.genai import types
 
-    SUPER_SECRET_API_KEY = "AIzaSyAerG1bzf9EdiA_HfxnW1rA_PoeATo9G5c"
+def get_LLM_response(prompt, keywords=""):
+    
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
-    with open('Xfinity_data.json', 'r') as file:
-        xfinity_products = json.load(file)
+    
+    try:
+        with open('Xfinity_data.json', 'r') as file:
+            xfinity_products = json.load(file)
+    except FileNotFoundError:
+        st.error("Xfinity_data.json file not found")
+        return [{"name": "Error", "price": "N/A", "features": ["Data file missing"]}]
 
     context = f"""
+        You are a helpful assistant. Respond ONLY with a valid JSON list. DO NOT include explanations or text outside the JSON.
+
         We have the following Xfinity products under 4 categories: {json.dumps(xfinity_products)}. 
-        Users can be recommended a single service or a combination of them based on their input prompt.Recognize use case that require dynamic internet speeds and differentiate between mobile,Tv,Home security and Internet use cases.
-        Based on the user prompt and some keywords, return a JSON list of exactly one service or combination of services 
-        that best fit their needs. Each item must have 'name', 'price', and 'features' keys, matching the product names EXACTLY 
-        as given in the dictionary. User prompt: {prompt} Keywords: {keywords}
-        Example output: [
-            {{"name": "Xfinity Internet Essential", "price": "$29.99/month", "features": ["50 Mbps", "Unlimited Data"]}},
-        ]
+        Users can be recommended a single service or a combination of them based on their input.
+        Recognize use cases that require dynamic internet speeds and differentiate between Mobile, TV, Home Security, and Internet use cases.
+
+        Use case: {prompt}
+        Keywords: {keywords}
+
+        Return a JSON list of one or more services that best fit the user's needs.
+        Each item must follow this format:
+        {{
+            "name": "Product Name",
+            "price": "$XX.XX/month",
+            "features": ["feature1", "feature2"]
+        }}
     """
 
-    def generate():
-        client = genai.Client(api_key=SUPER_SECRET_API_KEY)
-        model = "gemini-2.0-flash"
-        contents = [types.Content(role="user", parts=[types.Part.from_text(text=context)])]
-        config = types.GenerateContentConfig(
-            temperature=1,
-            top_p=0.95,
-            top_k=40,
-            max_output_tokens=8192,
-            response_mime_type="application/json",
-        )
-        full_response = ""
-        for chunk in client.models.generate_content_stream(model=model, contents=contents, config=config):
-            if chunk.text:
-                full_response += chunk.text
-        return full_response
-
-    llm_response = generate()
     try:
-        parsed_response = json.loads(llm_response)
-        if isinstance(parsed_response, list) and all(isinstance(item, dict) and 'name' in item and 'price' in item and 'features' in item for item in parsed_response):
-            return parsed_response[:3]  # Ensure only 3 items are returned
-        else:
-            st.error(f"LLM response format invalid: {parsed_response}")
-            return [{"name": "Error", "price": "N/A", "features": ["Invalid response format"]}]
-    except json.JSONDecodeError as e:
-        st.error(f"Failed to parse LLM response: {e}")
-        return [{"name": "Error", "price": "N/A", "features": ["Failed to parse response"]}]
+        
+        model = genai.GenerativeModel("gemini-2.0-flash")  
+        
+        response = model.generate_content(
+            context,
+            generation_config={
+                "temperature": 1,
+                "top_p": 0.95,
+                "top_k": 40,
+                "max_output_tokens": 8192,
+                "response_mime_type": "application/json"
+            }
+        )
 
-# Streamlit App
+        # JSON parsing
+        if response.text:
+            parsed_response = json.loads(response.text)
+            if (isinstance(parsed_response, list) and 
+                all(isinstance(item, dict) and "name" in item and "price" in item and "features" in item 
+                    for item in parsed_response)):
+                return parsed_response[:3]  # Return only 3 recommendations
+            else:
+                st.error(f"Invalid response format: {parsed_response}")
+                return [{"name": "Error", "price": "N/A", "features": ["Invalid response format"]}]
+        else:
+            return [{"name": "Error", "price": "N/A", "features": ["No response generated"]}]
+
+    except json.JSONDecodeError as e:
+        st.error(f"JSON parsing error: {e}")
+        return [{"name": "Error", "price": "N/A", "features": ["Failed to parse response"]}]
+    except Exception as e:
+        st.error(f"LLM error: {e}")
+        return [{"name": "Error", "price": "N/A", "features": [str(e)]}]
+
+
+# Streamlit App loading here
 def app():
     if 'logged_in' not in st.session_state:
         st.session_state.logged_in = False
@@ -257,7 +274,7 @@ def app():
             st.markdown(f"<h2>Welcome, {st.session_state.user_data['name']} 👋</h2>", unsafe_allow_html=True)
             st.markdown("<h4>Find Your Perfect Xfinity Plan</h4>", unsafe_allow_html=True)            
            
-            # Toggle cards
+            #  cards
             st.subheader("What are you interested in?")
             st.markdown('<div class="toggle-container">', unsafe_allow_html=True)
             options = ["Internet", "TV", "Mobile", "Home Security"]
@@ -272,7 +289,7 @@ def app():
                         st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
-            # Display chat history in a single chat container
+            # chat history
             for entry in st.session_state.chat_history:
                 for plan in entry['bot']:
                     st.markdown(
@@ -295,7 +312,7 @@ def app():
                         )
 
             if st.session_state.chat_mode:
-            # Prompt input (centered)
+            # Input prompt
                 col1, col2, col3 = st.columns([1, 2, 1])
                 with col2:
                     user_prompt = st.text_input("", placeholder="Describe your needs...", key="user_input", help="Example: 'I work from home and need fast internet.'")
@@ -312,7 +329,6 @@ def app():
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-# Login & Signup Logic (unchanged)
 def login_or_signup():
     if not st.session_state.show_signup:
         st.header("Login to Xfinity SmartMatch")
