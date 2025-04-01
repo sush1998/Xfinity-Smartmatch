@@ -94,7 +94,7 @@ Our recommendation system uses a hybrid approach:
 
 ## 📊 Demo
 
-[View Demo](https://yourusername.github.io/Xfinity-SmartMatch-Demo)
+[View Demo](https://xfinity-smartmatch.streamlit.app/)
 
 ## 🤝 Contributing
 
@@ -120,7 +120,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📧 Contact
 
-Project Link: [https://github.com/yourusername/Xfinity-SmartMatch](https://github.com/yourusername/Xfinity-SmartMatch)
+Project Link: [https://github.com/sush1998/Xfinity-SmartMatch](https://github.com/sush1998/Xfinity-SmartMatch)
 
 ---
 
