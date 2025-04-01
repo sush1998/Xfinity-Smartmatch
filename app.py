@@ -225,7 +225,7 @@ def get_LLM_response(prompt, keywords=""):
             if (isinstance(parsed_response, list) and 
                 all(isinstance(item, dict) and "name" in item and "price" in item and "features" in item 
                     for item in parsed_response)):
-                return parsed_response[:3]  # Return only 3 recommendations
+                return parsed_response[:1]  # Return only 3 recommendations
             else:
                 st.error(f"Invalid response format: {parsed_response}")
                 return [{"name": "Error", "price": "N/A", "features": ["Invalid response format"]}]
